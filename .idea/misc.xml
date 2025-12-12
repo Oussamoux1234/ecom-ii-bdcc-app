@@ -12,6 +12,8 @@
         <option value="$PROJECT_DIR$/discovery-service/pom.xml" />
         <option value="$PROJECT_DIR$/Billingservises/pom.xml" />
         <option value="$PROJECT_DIR$/config-service/pom.xml" />
+        <option value="$PROJECT_DIR$/agent-bot/pom.xml" />
+        <option value="$PROJECT_DIR$/mcp-server/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
