@@ -53,7 +53,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             // Send typing action to show bot is thinking
             SendChatAction chatAction = new SendChatAction();
             chatAction.setChatId(chatId);
-            chatAction.setAction("typing");
+            chatAction.setAction(org.telegram.telegrambots.meta.api.methods.ActionType.TYPING);
             execute(chatAction);
 
             // Process the message with AI agent

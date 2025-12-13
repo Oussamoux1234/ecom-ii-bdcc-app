@@ -3,19 +3,20 @@ package ma.emsi.agentbot.service;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
-import org.springframework.ai.mcp.client.ToolCallbackProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AiAgent {
 
     private final ChatClient chatClient;
+    private final RestTemplate restTemplate;
 
-    public AiAgent(ChatClient.Builder chatClientBuilder, ToolCallbackProvider toolCallbackProvider) {
+    public AiAgent(ChatClient.Builder chatClientBuilder) {
+        this.restTemplate = new RestTemplate();
         this.chatClient = chatClientBuilder
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
-                .defaultFunctions(toolCallbackProvider)
                 .build();
     }
 

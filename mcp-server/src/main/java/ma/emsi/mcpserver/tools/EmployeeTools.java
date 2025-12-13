@@ -1,12 +1,14 @@
 package ma.emsi.mcpserver.tools;
 
 import ma.emsi.mcpserver.model.Employee;
-import org.springframework.ai.mcp.server.McpTool;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Description;
 
 import java.util.List;
+import java.util.function.Function;
 
-@Component
+@Configuration
 public class EmployeeTools {
 
     // Mock data - in production, this would come from a database
@@ -16,16 +18,18 @@ public class EmployeeTools {
             new Employee("Omar", 9000.0, 2),
             new Employee("Aisha", 18000.0, 8));
 
-    @McpTool(name = "getEmployee", description = "Get details about an employee given their name. Returns employee information including name, salary, and seniority.")
-    public Employee getEmployee(String name) {
-        return employees.stream()
+    @Bean
+    @Description("Get details about an employee given their name")
+    public Function<String, Employee> getEmployee() {
+        return name -> employees.stream()
                 .filter(emp -> emp.name().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(new Employee("Unknown", 0.0, 0));
     }
 
-    @McpTool(name = "getAllEmployees", description = "Get a list of all employees in the company with their details (name, salary, seniority).")
-    public List<Employee> getAllEmployees() {
-        return employees;
+    @Bean
+    @Description("Get a list of all employees in the company")
+    public Function<Void, List<Employee>> getAllEmployees() {
+        return ignored -> employees;
     }
 }
