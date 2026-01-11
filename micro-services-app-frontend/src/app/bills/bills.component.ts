@@ -45,18 +45,19 @@ export class BillsComponent implements OnInit {
     }
   }
 
-  handleBillDetails(bill: any) {
-    // Extract bill ID from _links.self.href or use bill.id
-    let billId = bill.id;
-
-    if (!billId && bill._links?.self?.href) {
-      // Extract ID from href like "http://localhost:8083/api/bills/1"
+  getBillId(bill: any): string {
+    if (bill.id) return bill.id;
+    if (bill._links?.self?.href) {
       const href = bill._links.self.href;
       const parts = href.split('/');
-      billId = parts[parts.length - 1];
+      return parts[parts.length - 1];
     }
+    return 'N/A';
+  }
 
-    if (billId) {
+  handleBillDetails(bill: any) {
+    const billId = this.getBillId(bill);
+    if (billId && billId !== 'N/A') {
       this.router.navigate(['/bill-details', billId]);
     } else {
       console.error('Could not determine bill ID', bill);
