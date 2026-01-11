@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 @SpringBootApplication
@@ -26,33 +25,48 @@ public class BillingServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BillingServiceApplication.class, args);
 	}
+
 	@Bean
-	CommandLineRunner commandLineRunner(BillRepository  billRepository,
-										ProductItemRepository productItemRepository,
-										CustomerRestClient customerRestClient,
-										ProductRestClient productRestClient){
+	CommandLineRunner commandLineRunner(BillRepository billRepository,
+			ProductItemRepository productItemRepository,
+			CustomerRestClient customerRestClient,
+			ProductRestClient productRestClient) {
 
 		return args -> {
-			Collection<Customer> customers = customerRestClient.getAllCustomers().getContent();
-			Collection<Product> products = productRestClient.getAllProducts().getContent();
+			try {
+				// Wait a bit for other services to register with Eureka
+				System.out.println("⏳ Waiting for services to be available...");
+				Thread.sleep(5000);
 
-			customers.forEach(customer -> {
-				Bill bill = Bill.builder()
-						.billingDate(new Date())
-						.customerId(customer.getId())
-						.build();
-				billRepository.save(bill);
-				products.forEach(product -> {
-					ProductItem productItem = ProductItem.builder()
-							.bill(bill)
-							.productId(product.getId())
-							.quantity(1+new Random().nextInt(10))
-							.unitPrice(product.getPrice())
+				Collection<Customer> customers = customerRestClient.getAllCustomers().getContent();
+				Collection<Product> products = productRestClient.getAllProducts().getContent();
+
+				if (customers.isEmpty() || products.isEmpty()) {
+					System.out.println("⚠️ No customers or products found, skipping sample data creation");
+					return;
+				}
+
+				customers.forEach(customer -> {
+					Bill bill = Bill.builder()
+							.billingDate(new Date())
+							.customerId(customer.getId())
 							.build();
-					productItemRepository.save(productItem);
+					billRepository.save(bill);
+					products.forEach(product -> {
+						ProductItem productItem = ProductItem.builder()
+								.bill(bill)
+								.productId(product.getId())
+								.quantity(1 + new Random().nextInt(10))
+								.unitPrice(product.getPrice())
+								.build();
+						productItemRepository.save(productItem);
+					});
 				});
-			});
+				System.out.println("✅ Sample billing data created successfully!");
+			} catch (Exception e) {
+				System.out.println("⚠️ Could not create sample data (services not available): " + e.getMessage());
+				System.out.println("   This is OK - the service will work normally, just without sample data.");
+			}
 		};
 	}
-
 }
